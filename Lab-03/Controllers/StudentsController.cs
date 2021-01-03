@@ -3,6 +3,7 @@ using Lab_03.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,6 +13,8 @@ namespace Lab_03.Controllers
     [Route("api/students")]
     public class StudentsController : ControllerBase
     {
+        private string ConnString = "Data Source=db-mssql;Initial Catalog=s19188;Integrated Security=True";
+
         private readonly IDbService _dbService;
         public StudentsController(IDbService dbService) 
         {
@@ -19,23 +22,64 @@ namespace Lab_03.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetStudents(string orderBy)
+        public IActionResult GetStudents()
         {
-            return Ok(_dbService.GetStudents());
+            var result = new List<Student>();
+           
+
+            using (SqlConnection con = new SqlConnection(ConnString))
+            using (SqlCommand com = new SqlCommand())
+            {
+                com.Connection = con;
+                com.CommandText = "select * from student";
+
+                con.Open();
+                SqlDataReader dr = com.ExecuteReader();
+                while (dr.Read())
+                {
+                    var st = new Student();
+                    st.FirstName = dr["FirstName"].ToString();
+                    st.LastName = dr["LastName"].ToString();
+                    st.IndexNumber = dr["IndexNumber"].ToString();
+                    result.Add(st);
+                }
+
+                return Ok(result);
+            }
         }
 
-        [HttpGet("{id}")]
-        public IActionResult GetStudent(int id)
+        [HttpGet("{IndexNumber}")]
+        public IActionResult GetStudent(string IndexNumber)
         {
-            if (id == 1)
+            using (SqlConnection con = new SqlConnection(ConnString))
+            using (SqlCommand com = new SqlCommand())
             {
-                return Ok("Kowalski");
-            } else if (id == 2)
-            {
-                return Ok("Malewski");
-            }
+                com.Connection = con;
+                com.CommandText = "select * from student where IndexNumber=@index";
 
-            return NotFound("Nie znaleziono studenta");
+                /*
+                 * SqlParameter par1 = new SqlParameter();
+                 * par1.ParameterName = "index";
+                 * par1.Value = IndexNumber;
+                 * com.Parameters.Add(par1);
+                 */
+
+                com.Parameters.AddWithValue("index", IndexNumber);
+
+                con.Open();
+
+                SqlDataReader dr = com.ExecuteReader();
+                while (dr.Read())
+                {
+                    var st = new Student();
+                    st.FirstName = dr["FirstName"].ToString();
+                    st.LastName = dr["LastName"].ToString();
+                    st.IndexNumber = dr["IndexNumber"].ToString();
+                    return Ok(st);
+                }
+
+                return Ok();
+            }
         }
 
         [HttpPost]
