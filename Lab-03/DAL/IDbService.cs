@@ -9,5 +9,7 @@ namespace Lab_03.DAL
     public interface IDbService
     {
         public IEnumerable<Student> GetStudents();
+        Student GetStudentByIndex(string index);
+        void SaveLogData(string [] textToLog);
     }
 }
