@@ -1,10 +1,15 @@
 ﻿using Lab_03.DAL;
 using Lab_03.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Lab_03.Controllers
@@ -16,12 +21,23 @@ namespace Lab_03.Controllers
         private string ConnString = "Data Source=db-mssql;Initial Catalog=s19188;Integrated Security=True";
 
         private readonly IDbService _dbService;
-        public StudentsController(IDbService dbService) 
+
+  
+        public IConfiguration _Configuration { get; set; }
+
+        public StudentsController(IConfiguration configuration)
+        {
+            _Configuration = configuration;
+        }
+
+        public StudentsController(IDbService dbService)
         {
             _dbService = dbService;
+            
         }
 
         [HttpGet]
+        
         public IActionResult GetStudents()
         {
             var result = new List<Student>();
@@ -107,6 +123,37 @@ namespace Lab_03.Controllers
                 return Ok("Update complete");
             }
             return NotFound("Student not found");
+        }
+
+        //logging endpoint
+        [HttpPost]
+        public IActionResult Login(LoginRequestDto request)
+        {
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, "1"),
+                new Claim(ClaimTypes.Name, "jan123"),
+                new Claim(ClaimTypes.Role, "admin"),
+                new Claim(ClaimTypes.Role, "student")
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_Configuration["SecretKey"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken
+            (
+                issuer: "Gakko",
+                audience: "Students",
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(10),
+                signingCredentials: creds
+            );
+
+            return Ok(new
+            {
+                token = new JwtSecurityTokenHandler().WriteToken(token),
+                refreshToken = Guid.NewGuid()
+            });
         }
     }
 }

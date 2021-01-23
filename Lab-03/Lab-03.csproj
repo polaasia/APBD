@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>Lab_03</RootNamespace>
+    <UserSecretsId>4f7292d0-baff-4c29-a9e9-9519dfeaf601</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
