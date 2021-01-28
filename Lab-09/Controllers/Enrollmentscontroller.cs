@@ -13,7 +13,13 @@ namespace Lab_09.Controllers
     public class EnrollmentsController : ControllerBase
     {
 
-        private s19188Context db = new s19188Context();
+        private readonly s19188Context _context;
+
+        public EnrollmentsController(s19188Context context)
+        {
+            _context = context;
+
+        }
 
         //enroll student
         [HttpPost("enroll")]

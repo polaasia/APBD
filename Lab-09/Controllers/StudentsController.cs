@@ -1,6 +1,7 @@
 ﻿using Lab_09.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,60 +13,63 @@ namespace Lab_09.Controllers
     [ApiController]
     public class StudentsController : ControllerBase
     {
-        private s19188Context db = new s19188Context();
-        
-        
+        private readonly s19188Context _context;
+
+        public StudentsController(s19188Context context)
+        {
+            _context = context;
+
+        }
+
+
         [HttpGet]
         public IActionResult GetStudents()
         {
-            return Ok(db.Students.ToList());
+            return Ok(_context.Students.ToList());
+        }
+
+        
+        [HttpGet("{indexNumber}")]
+        public IActionResult GetStudent(String indexNumber) 
+        {
+            var st = _context.Students.Where(s => s.IndexNumber.Equals(indexNumber)).FirstOrDefault();
+            return Ok(st);
         }
 
         [HttpPost]
-        public IActionResult AddStudent() 
+        public IActionResult AddStudent(Student student) 
         {
-            /*
-             var p = new Prescription()
+            var st = new Student
             {
-                Date = DateTime.Now,
-                DueDate = DateTime.Now,
-                IdPatient = 2
+                IndexNumber = student.IndexNumber,
+                FirstName = student.FirstName,
+                LastName = student.LastName,
+                BirthDate = student.BirthDate,
+                IdEnrollment = student.IdEnrollment
             };
-            var set = new HashSet<Prescription> { p };
-
-            var d = new Doctor
-            {
-                FirstName="AAA",
-                LastName="BBB",
-                Email="AAA@wp.pl",
-                Prescription= set
-            };
-            db.Doctor.Add(d);
-
-            db.SaveChanges(); //1 transakcja -> 2 INS
-             */
+            _context.Students.Add(st);
+            _context.SaveChanges();
+     
             return Ok();
 
         }
 
-        [HttpPut]
-        public IActionResult ModifyStudent() 
+        [HttpPut("{indexNumber}")]
+        public IActionResult ModifyStudent(String indexNumber) 
         {
-            return Ok();
-            /*
-             var d1 = new Doctor
-            {
-                IdDoctor=5,
-                LastName="Kwiatkowski"
-            };
-            db.Attach(d1); // d1 znajduje sie pod system sledzenie zmian
-                           // unchanged
-                           //db.Add(d1);
-            //db.Entry(d1).Property("LastName").IsModified = true;
-            //db.Entry(d1).State = EntityState.Modified;
 
-            db.SaveChanges();
-             */
+            var st = new Student
+            {
+                IndexNumber = indexNumber,
+                LastName = "Kwiatkowski"
+            };
+
+            _context.Attach(st);
+            _context.Entry(st).Property("LastName").IsModified = true;
+            _context.Entry(st).State = EntityState.Modified;
+
+            _context.SaveChanges();
+            return Ok();
 
         }
 
@@ -76,21 +80,14 @@ namespace Lab_09.Controllers
             {
                 IndexNumber = id
             };
-            db.Attach(st);
-            db.Remove(st);
+            _context.Attach(st);
+            _context.Remove(st);
 
-            await db.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return Ok("Student deleted");
 
         }
-        /*
-         * Endpoint which returns list of students.
-         * Endpoint which allows to insert new student into database.
-         * Endpoint which allows to modify student data.
-         * Endpoint which allows to delete student
-         */
-
-
+        
     }
 }

@@ -1,3 +1,4 @@
+using Lab_09.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,7 @@ namespace Lab_09
         public void ConfigureServices(IServiceCollection services)
         {
 
+            services.AddDbContext<s19188Context>();
             services.AddControllers();
           
         }
