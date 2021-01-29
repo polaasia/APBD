@@ -7,8 +7,8 @@ commit "task 7" was actually the task 6. task 7 is a Linq Task
 
 :white_check_mark: task 3\
 :white_check_mark: task 4\
-:wavy_dash: task 5\
-:wavy_dash: task 6\
+:white_check_mark: task 5\
+:white_check_mark: task 6\
 :white_check_mark: task 7\
 :black_large_square: ~~task 8~~\
 :white_check_mark: task 9
