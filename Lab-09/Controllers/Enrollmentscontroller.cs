@@ -1,4 +1,6 @@
-﻿using Lab_09.Models;
+﻿using Lab_09.DTOs;
+using Lab_09.Models;
+using Lab_09.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -11,33 +13,31 @@ namespace Lab_09.Controllers
     [Route("api/enrollments")]
     [ApiController]
     public class EnrollmentsController : ControllerBase
-    {
-
-        private readonly s19188Context _context;
-
-        public EnrollmentsController(s19188Context context)
+    {       
+        private readonly IStudentDbService _service;
+        public EnrollmentsController(IStudentDbService service)
         {
-            _context = context;
-
+            _service = service;
         }
 
         //enroll student
-        [HttpPost("enroll")]
-        public IActionResult EnrollStudent()
+        [HttpPost]
+        public IActionResult EnrollStudent(EnrollmentRequest request)
         {
+            _service.EnrollStudent(request);
 
-            return Ok();
+            var response = new EnrollmentResponse();
+            return Ok(response);
         }
 
         //promote student
-        [HttpPut("promote")]
+        [HttpPost("promotions")]
         public IActionResult PromoteStudents(int semester, string studies)
         {
+            _service.PromoteStudents(semester, studies);
 
-            return Ok();
-
-
+            var response = new PromoteResponse();
+            return Ok(response);
         }
-       
     }
 }
